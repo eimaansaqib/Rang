@@ -18,6 +18,12 @@ Clone the repository to your local machine:
 git clone https://github.com/eimaansaqib/Rang
 ```
 
+Install nodemon for typscript files:
+```bash
+npm install -g ts-node
+npm install --save-dev ts-node nodemon
+```
+
 Install dependencies:
 
 ```bash
