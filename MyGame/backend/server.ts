@@ -377,11 +377,7 @@ let winners = ['', ''];
 io.on('connection', (socket: any) => {
   console.log('user connected with a socket id', socket.id);
   console.log('assigning ID', id);
-  // if ([...names.keys()].length >= 4) {
-  //   socket.emit('connectionRefused', { data: 'tooManyPlayers' });
-  // } else {
   socket.emit('connected', { id: id });
-  // }
 
   // add the new client to the clients map with the assigned ID
   socket.on('acceptedConnection', (data: any) => {
@@ -395,6 +391,12 @@ io.on('connection', (socket: any) => {
     );
     clients.set(socket, data.id);
     id = assignID();
+    if (
+      names.size >= 4 &&
+      [...names.keys()].find((id) => id === data.id) === undefined
+    ) {
+      socket.emit('connectionRefused', { data: 'tooManyPlayers' });
+    }
     broadcastGameStatus();
   });
 

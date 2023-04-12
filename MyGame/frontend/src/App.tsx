@@ -20,6 +20,15 @@ function App() {
   console.log('App: ', ID);
 
   useEffect(() => {
+    // route to registration page if the game is already full
+    socket.on('connectionRefused', (data: any) => {
+      console.log('connection refused');
+      console.log('Localtion: ', window.location.href);
+      if (window.location.href !== 'http://localhost:3000/') {
+        window.location.href = '/';
+      }
+    });
+
     // server proposes an ID for the player if they don't have one
     // if the player doesn't have an ID, they establish a connection with the server-proposed ID
     // if the player already has an ID, they establish a connection with their ID
@@ -39,12 +48,6 @@ function App() {
       socket.emit('acceptedConnection', {
         id: parseInt(sessionStorage.getItem('id') || '-1'),
       });
-    });
-
-    // route to registration page if the game is already full
-    socket.on('connectionRefused', (data: any) => {
-      console.log('connection refused');
-      window.location.href = '/';
     });
   }, []);
 
