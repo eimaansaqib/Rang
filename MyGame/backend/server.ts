@@ -212,12 +212,9 @@ const verifyMove = (
   card: { suit: string; rank: string },
   hand: { suit: string; rank: string }[]
 ) => {
-  console.log('played cards: ', PlayedCards.length);
   const numberOfRounds = Math.floor(PlayedCards.length / 4);
-  console.log('number of rounds: ', numberOfRounds);
   const lastRoundStart =
     PlayedCards.length % 4 === 0 ? numberOfRounds * 4 - 4 : numberOfRounds * 4;
-  console.log('last round start: ', lastRoundStart);
   const suit = card.suit;
   if (PlayedCards.length % 4 !== 0) {
     if (suit !== PlayedCards[lastRoundStart].suit) {
@@ -283,19 +280,12 @@ const getRoundWinner = () => {
     let maxID = 0;
     let maxCard = '';
     const sliced = PlayedCards.slice(-4);
-    console.log('sliced: ' + sliced);
     const allIDs = [...names.keys()];
-    console.log('allIDs: ' + allIDs);
     const index = allIDs.indexOf(currentPlayer);
-    console.log('index: ' + index);
     for (let i = 0; i < sliced.length; i++) {
       const playerID = allIDs[(index + i) % 4];
-      console.log('playerID: ' + playerID);
       const cardString = cardToString(sliced[i]);
-      console.log('cardString: ' + cardString);
       const priority = cardPriority.get(cardString);
-      console.log('priority: ' + priority);
-      console.log('max: ' + max);
       if (priority > max) {
         max = priority;
         maxID = playerID;
@@ -306,7 +296,6 @@ const getRoundWinner = () => {
           maxID = playerID;
         }
       }
-      console.log('priority: ' + maxID + ' ' + max);
     }
     return maxID;
   }
@@ -356,16 +345,12 @@ const broadcast = (event: string, data: any) => {
 const broadcastGameStatus = () => {
   if (winners[0] !== '' && winners[1] !== '') {
     broadcast('gameStatus', { data: `gameOver` });
-    console.log('game over');
   } else if (names.size < 4) {
     broadcast('gameStatus', { data: `waitingForPlayers` });
-    console.log('waiting for more players');
   } else if (names.size === 4) {
     broadcast('gameStatus', { data: `startGame` });
-    console.log('starting game');
   } else {
     broadcast('gameStatus', { data: `tooManyPlayers` });
-    console.log('too many players');
   }
 };
 
@@ -373,10 +358,9 @@ let round1Dealt = false;
 let round2Dealt = false;
 let openCheck = false;
 let winners = ['', ''];
+let numberOfQueries = 0;
 
 io.on('connection', (socket: any) => {
-  console.log('user connected with a socket id', socket.id);
-  console.log('assigning ID', id);
   socket.emit('connected', { id: id });
 
   // add the new client to the clients map with the assigned ID
@@ -387,7 +371,7 @@ io.on('connection', (socket: any) => {
       }
     }
     console.log(
-      `Client ${socket.id} has accepted connection with ID ${data.id}`
+      `Client ${socket.id} has established connection with ID ${data.id}`
     );
     clients.set(socket, data.id);
     id = assignID();
@@ -406,29 +390,23 @@ io.on('connection', (socket: any) => {
 
   // store the name of the client with the corresponding ID
   socket.on('register', (data: any) => {
-    console.log(
-      `Client ${data.id} has registered with name ${data.name} through socket ${socket.id}`
-    );
+    console.log(`Client ${data.id} has registered with name ${data.name}`);
     names.set(data.id, data.name);
     broadcastGameStatus();
   });
 
   // return the name of the client with the corresponding ID
   socket.on('getName', (data: any) => {
-    console.log('Client', socket.id, 'is requesting name for ID', data.id);
-    console.log(`Sending name ${getNameByID(data.id)} to client ${socket.id}`);
     socket.emit('registered', { name: getNameByID(data.id) });
     broadcastGameStatus();
   });
 
   // return the names and IDs of all registered clients
   socket.on('getPlayers', (data: any) => {
-    console.log('Client', socket.id, 'is requesting players');
     let players: {}[] = [];
     for (const [socketID, name] of names) {
       players.push({ id: socketID, name: name });
     }
-    console.log(`Sending players ${players} to client ${socket.id}`);
     socket.emit('players', { players: players });
   });
 
@@ -446,10 +424,8 @@ io.on('connection', (socket: any) => {
     let mapCards = cards.map((card: string, index: number) => {
       return { id: [...names.keys()][index], card: card };
     });
-    console.log('First hand: ', mapCards);
     assignPriority();
     let trumpSuitID = chooseTrumpSuit(mapCards);
-    console.log('Trump suit ID: ', trumpSuitID);
     broadcast('firstHand', { cards: firstHand, trumpSuitID: trumpSuitID });
   });
 
@@ -459,22 +435,36 @@ io.on('connection', (socket: any) => {
       dealCards(5);
       round1Dealt = true;
     }
-    console.log('Client', socket.id, 'is requesting round 1 cards');
     let clientSocket = getSocketByID(data.id);
     let allIDs = [...names.keys()];
     let index = allIDs.indexOf(data.id);
     index === 0
-      ? clientSocket.emit('handRound1', { cards: Player1 })
+      ? clientSocket.emit('handRound1', {
+          cards: Player1.map((card) => {
+            return { suit: card.suit, rank: card.rank.toLowerCase() };
+          }),
+        })
       : index === 1
-      ? clientSocket.emit('handRound1', { cards: Player2 })
+      ? clientSocket.emit('handRound1', {
+          cards: Player2.map((card) => {
+            return { suit: card.suit, rank: card.rank.toLowerCase() };
+          }),
+        })
       : index === 2
-      ? clientSocket.emit('handRound1', { cards: Player3 })
-      : clientSocket.emit('handRound1', { cards: Player4 });
+      ? clientSocket.emit('handRound1', {
+          cards: Player3.map((card) => {
+            return { suit: card.suit, rank: card.rank.toLowerCase() };
+          }),
+        })
+      : clientSocket.emit('handRound1', {
+          cards: Player4.map((card) => {
+            return { suit: card.suit, rank: card.rank.toLowerCase() };
+          }),
+        });
   });
 
   // broadcast the selected Rang to all players
   socket.on('selectRang', (data: any) => {
-    console.log('Rang selected: ', data.rang);
     TrumpSuit = data.rang.charAt(0).toUpperCase();
     assignPriority();
     broadcast('setRang', { rang: data.rang, id: data.id });
@@ -487,34 +477,44 @@ io.on('connection', (socket: any) => {
       dealCards(8);
       round2Dealt = true;
     }
-    console.log('Client', socket.id, 'is requesting round 2 cards');
     let clientSocket = getSocketByID(data.id);
     let allIDs = [...names.keys()];
     let index = allIDs.indexOf(data.id);
     index === 0
-      ? clientSocket.emit('handRound2', { cards: Player1 })
+      ? clientSocket.emit('handRound2', {
+          cards: Player1.map((card) => {
+            return { suit: card.suit, rank: card.rank.toLowerCase() };
+          }),
+        })
       : index === 1
-      ? clientSocket.emit('handRound2', { cards: Player2 })
+      ? clientSocket.emit('handRound2', {
+          cards: Player2.map((card) => {
+            return { suit: card.suit, rank: card.rank.toLowerCase() };
+          }),
+        })
       : index === 2
-      ? clientSocket.emit('handRound2', { cards: Player3 })
-      : clientSocket.emit('handRound2', { cards: Player4 });
+      ? clientSocket.emit('handRound2', {
+          cards: Player3.map((card) => {
+            return { suit: card.suit, rank: card.rank.toLowerCase() };
+          }),
+        })
+      : clientSocket.emit('handRound2', {
+          cards: Player4.map((card) => {
+            return { suit: card.suit, rank: card.rank.toLowerCase() };
+          }),
+        });
   });
 
   // try to play a card by a player with the corresponding ID, and broadcast the result
   socket.on('playCard', (data: any) => {
-    console.log('Current player: ', currentPlayer);
-    console.log('Client', data.id, 'is playing card', data.card);
     const playResult = playCard(data.card, data.id);
 
     // -1: player played out of turn, 0: invalid card, 1: valid card
     if (playResult === -1) {
-      console.log('Client', data.id, 'is playing out of turn');
       socket.emit('outOfTurn', { id: data.id });
     } else if (playResult === 0) {
-      console.log('Client', data.id, 'is playing an invalid card');
       socket.emit('invalidCard', { id: data.id });
     } else {
-      console.log('Client', data.id, 'is playing a valid card');
       openCheck = true;
       broadcast('playedCard', {
         card: data.card,
@@ -526,19 +526,20 @@ io.on('connection', (socket: any) => {
 
   // check if a round has a winner, and broadcast the result
   socket.on('checkWinner', (data: any) => {
-    if (openCheck) {
+    numberOfQueries += 1;
+    if (openCheck && numberOfQueries === 4) {
+      openCheck = false;
+      numberOfQueries = 0;
+
       // ID of the player who won the round, -1 if no winner
       const winner = getRoundWinner();
 
       if (winner === -1) {
-        console.log('Round has no winner');
         broadcast('noWinner', { nextPlayer: currentPlayer });
       } else {
-        console.log('Round winner is', winner);
         currentPlayer = winner;
         broadcast('roundWinner', { winner: winner, nextPlayer: currentPlayer });
       }
-      openCheck = false;
     }
   });
 

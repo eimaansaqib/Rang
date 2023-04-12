@@ -19,19 +19,14 @@ function Loading({ socket, id }: Props) {
     socket.on('gameStatus', ({ data }) => {
       setGameStatus(data);
     });
-    console.log(`Loading with ID ${id} and Socket ID ${socket.id}`);
   }, [socket, id]);
 
   useEffect(() => {
-    console.log(`Getting name for ID ${id} and Socket ID ${socket.id}`);
     socket.emit('getName', { id: id });
   }, [socket, id]);
 
   useEffect(() => {
     socket.on('registered', ({ name }) => {
-      console.log(
-        `Received registered name ${name} for ID ${id} and Socket ID ${socket.id}`
-      );
       setName(name);
     });
   }, [socket, id]);

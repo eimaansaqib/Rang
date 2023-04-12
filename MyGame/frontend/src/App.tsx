@@ -17,13 +17,10 @@ function App() {
   const newID = sessionStorage.getItem('id') || '-1';
   sessionStorage.setItem('id', newID);
   const [ID, setId] = useState(parseInt(sessionStorage.getItem('id') || '-1'));
-  console.log('App: ', ID);
 
   useEffect(() => {
     // route to registration page if the game is already full
     socket.on('connectionRefused', (data: any) => {
-      console.log('connection refused');
-      console.log('Localtion: ', window.location.href);
       if (window.location.href !== 'http://localhost:3000/') {
         window.location.href = '/';
       }
@@ -33,18 +30,10 @@ function App() {
     // if the player doesn't have an ID, they establish a connection with the server-proposed ID
     // if the player already has an ID, they establish a connection with their ID
     socket.on('connected', ({ id }) => {
-      console.log(
-        `Server requesting connection with ID ${id} and socket ID ${socket.id}`
-      );
       if (parseInt(sessionStorage.getItem('id') || '-1') === -1) {
         sessionStorage.setItem('id', id.toString());
         setId(id);
       }
-      console.log(
-        `Sending ID ${parseInt(
-          sessionStorage.getItem('id') || '-1'
-        )} to server with socket ID ${socket.id}`
-      );
       socket.emit('acceptedConnection', {
         id: parseInt(sessionStorage.getItem('id') || '-1'),
       });

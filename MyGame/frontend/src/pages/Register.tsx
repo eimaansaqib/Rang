@@ -18,7 +18,6 @@ function Register({ socket, id }: Props) {
     socket.on('gameStatus', ({ data }) => {
       setGameStatus(data);
     });
-    console.log(`Register with ID ${id} and Socket ID ${socket.id}`);
   }, [socket, id]);
 
   useEffect(() => {
@@ -37,10 +36,6 @@ function Register({ socket, id }: Props) {
       alert('Too many players!');
       return;
     }
-    console.log('name:', name);
-    console.log(
-      `Sending registered name ${name} to server with ID ${id} and Socket ID ${socket.id}`
-    );
     socket.emit('register', { id: id, name: name });
     window.location.href = '/loading';
   };

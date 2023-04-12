@@ -6,8 +6,6 @@ interface Props {
 }
 
 function DisplayCard({ rank, suit }: Props) {
-  console.log('rank: ', rank);
-  console.log('suit: ', suit);
   return (
     <div className={`card rank-${rank} ${suit}`}>
       <span className="rank">{rank.toUpperCase()}</span>

@@ -98,7 +98,6 @@ function HomePage({ socket, id }: Props) {
     cards: { rank: string; suit: string; id: number }[],
     trumpSuitID: number
   ) => {
-    console.log('Setting first round of cards');
     setFirstHand(cards);
     setTrumpID(trumpSuitID);
     setMessages([
@@ -179,13 +178,7 @@ function HomePage({ socket, id }: Props) {
     let newFirstHand = firstHand;
     const playerIndex = players.findIndex((player) => player.id === playedID);
     newFirstHand[playerIndex] = card;
-    console.log(
-      `Setting card for ${getNameById(playedID)} at index ${playerIndex} to ${
-        card.rank
-      } of ${card.suit}`
-    );
     setFirstHand(newFirstHand);
-    console.log(firstHand);
   };
 
   // if the round is not complete yet, do not declare a winner
@@ -225,8 +218,7 @@ function HomePage({ socket, id }: Props) {
   const declareWinners = (index1: number, index2: number) => {
     const winner1 = getNameById(scores[index1].id);
     const winner2 = getNameById(scores[index2].id);
-    console.log('winner1: ', winner1);
-    console.log('winner2: ', winner2);
+    console.log(`Game Over! ${winner1} and ${winner2} won!`);
     socket.emit('gameOver', { player1: winner1, player2: winner2 });
     const finalWinners = {
       player1: winner1,
@@ -245,16 +237,11 @@ function HomePage({ socket, id }: Props) {
     socket.on('gameStatus', ({ data }) => {
       setGameStatus(data);
     });
-    console.log(`HomePage with ID ${id} and Socket ID ${socket.id}`);
 
     // Getting name for the player
-    console.log(`Getting name for ID ${id} and Socket ID ${socket.id}`);
     socket.emit('getName', { id: id });
 
     socket.on('registered', ({ name }) => {
-      console.log(
-        `Received registered name ${name} for ID ${id} and Socket ID ${socket.id}`
-      );
       registerPlayer(name);
     });
 
@@ -281,7 +268,6 @@ function HomePage({ socket, id }: Props) {
 
       // getting the cards and the ID of the player who will choose the Rang
       socket.on('firstHand', ({ cards, trumpSuitID }) => {
-        console.log('trumpSuitID: ', trumpSuitID);
         processFirstHand(cards, trumpSuitID);
 
         // moving to Round 1 of dealing out the cards
@@ -324,20 +310,17 @@ function HomePage({ socket, id }: Props) {
 
       // checking if the player played out of turn
       socket.on('outOfTurn', (data) => {
-        console.log('outOfTurn');
         outOfTurn(data);
       });
 
       // checking if the player played an invalid card
       socket.on('invalidCard', (data) => {
-        console.log('invalidCard');
         invalidCard(data);
         setGameState({ state: 'chooseCard', id: id });
       });
 
       // checking if the player played a valid card
       socket.on('playedCard', ({ card, playedID, nextPlayer }) => {
-        console.log('playedCard');
         validCard(card, playedID, nextPlayer);
 
         // checking if this turn produced a winner for this round
