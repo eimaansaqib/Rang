@@ -370,9 +370,6 @@ io.on('connection', (socket: any) => {
         clients.delete(socket);
       }
     }
-    console.log(
-      `Client ${socket.id} has established connection with ID ${data.id}`
-    );
     clients.set(socket, data.id);
     id = assignID();
     if (
@@ -507,7 +504,11 @@ io.on('connection', (socket: any) => {
 
   // try to play a card by a player with the corresponding ID, and broadcast the result
   socket.on('playCard', (data: any) => {
-    const playResult = playCard(data.card, data.id);
+    const playedCard = {
+      suit: data.card.suit,
+      rank: data.card.rank.toUpperCase(),
+    };
+    const playResult = playCard(playedCard, data.id);
 
     // -1: player played out of turn, 0: invalid card, 1: valid card
     if (playResult === -1) {
@@ -559,7 +560,6 @@ io.on('connection', (socket: any) => {
   });
 
   socket.on('disconnect', () => {
-    console.log(`Client ${socket.id} has disconnected`);
     clients.delete(socket);
     id = assignID();
     broadcastGameStatus();

@@ -499,6 +499,9 @@
 .playingCards ul.hand {
   margin-bottom: 3.5em;
 }
+.playingCards ul.hand li {
+  cursor: pointer;
+}
 .playingCards ul.table li,
 .playingCards ul.hand li,
 .playingCards ul.deck li {
