@@ -42,7 +42,7 @@ function Register({ socket, id }: Props) {
 
   return (
     <div>
-      <Title>Rung Online</Title>
+      <Title>Rang Online</Title>
       <SubTitle>Get Started!</SubTitle>
       <Form>
         <FormInput
