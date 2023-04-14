@@ -1,6 +1,6 @@
 # Rang
 
-An online 4 player "rang" card game
+An online 4 player card game
 
 ## Tooling
 
