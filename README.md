@@ -4,11 +4,10 @@ An online 4 player "rang" card game
 
 ## Tooling
 
-|  Module  | Framework |
-
-| Backend  | Socket.IO |
-
-| Frontend |   React   |
+| Module | Framework |
+| --- | --- |
+| Backend| Socket.IO |
+| Frontend | React |
 
 ## Running Development Environment
 
