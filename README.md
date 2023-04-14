@@ -1,14 +1,13 @@
 # Rang
 
-An online 4 player "rang" card game
+An online 4 player card game
 
 ## Tooling
 
-|  Module  | Framework |
-
-| Backend  | Socket.IO |
-
-| Frontend |   React   |
+| Module | Framework |
+| --- | --- |
+| Backend| Socket.IO |
+| Frontend | React |
 
 ## Running Development Environment
 
@@ -16,6 +15,12 @@ Clone the repository to your local machine:
 
 ```bash
 git clone https://github.com/eimaansaqib/Rang
+```
+
+Install nodemon for typscript files:
+```bash
+npm install -g ts-node
+npm install --save-dev ts-node nodemon
 ```
 
 Install dependencies:
